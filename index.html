@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд ПРС — АЭСО</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 2rem 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 2rem;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat {
+            background: #f8fafc;
+            padding: 1.2rem 1.5rem;
+            border-radius: 20px;
+            border: 1px solid #e9edf4;
+        }
+        .stat .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .stat .label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1px solid #d1d9e6;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #f9fafc;
+            transition: 0.15s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: #ffffff;
+        }
+        .btn {
+            background: #1e293b;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-primary {
+            background: #2563eb;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        .btn-outline {
+            background: transparent;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-outline:hover {
+            background: #f1f5f9;
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            align-items: center;
+        }
+        .bar-wrapper {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        .bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .bar {
+            width: 48px;
+            border-radius: 12px 12px 4px 4px;
+            background: #3b82f6;
+            transition: height 0.2s;
+        }
+        .bar-label {
+            font-size: 0.8rem;
+            color: #475569;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+        .history-table th {
+            text-align: left;
+            padding: 0.6rem 0.8rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+            font-weight: 500;
+        }
+        .history-table td {
+            padding: 0.6rem 0.8rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .footnote {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #0f172a;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 500;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.3s;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media (max-width: 700px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            body { padding: 1rem; }
+            .card { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="font-size:2rem; font-weight:600;">📊 Дашборд ПРС</h1>
+    <p style="color:#475569; margin-bottom:2rem;">Авторская система профессионального развития студента (АЭСО)</p>
+
+    <!-- Статистика -->
+    <div class="grid-4" id="stats">
+        <div class="stat"><div class="number" id="totalPages">0</div><div class="label">Всего страниц</div></div>
+        <div class="stat"><div class="number" id="totalProjects">0</div><div class="label">Всего проектов</div></div>
+        <div class="stat"><div class="number" id="totalEntries">0</div><div class="label">Записей</div></div>
+        <div class="stat"><div class="number" id="lastUpdate">—</div><div class="label">Последнее обновление</div></div>
+    </div>
+
+    <!-- Форма + график -->
+    <div class="grid-2">
+        <div class="card">
+            <h3 style="margin-bottom:1rem;">✏️ Добавить запись</h3>
+            <div class="form-group">
+                <label>Дата</label>
+                <input type="date" id="inputDate">
+            </div>
+            <div class="form-group">
+                <label>Объём (страницы)</label>
+                <input type="number" id="inputPages" placeholder="например 279">
+            </div>
+            <div class="form-group">
+                <label>Число проектов</label>
+                <input type="number" id="inputProjects" placeholder="например 8">
+            </div>
+            <div class="form-group">
+                <label>Название проекта (кратко)</label>
+                <input type="text" id="inputName" placeholder="Апробация, ИГ, ПРС...">
+            </div>
+            <div class="form-group">
+                <label>Примечание</label>
+                <input type="text" id="inputNote" placeholder="добавлена матрица рисков">
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="saveBtn">💾 Сохранить</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom:0.5rem;">📈 Рост объёма</h3>
+            <p style="font-size:0.85rem; color:#64748b; margin-bottom:1rem;">страницы по датам</p>
+            <div id="chartContainer" style="min-height:220px;">
+                <div class="bar-wrapper" id="chartBars">
+                    <div style="color:#94a3b8; text-align:center; width:100%; padding:1rem 0;">Нет данных</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- История -->
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+            <h3>📋 История изменений</h3>
+            <span style="font-size:0.85rem; color:#64748b;">локально</span>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="history-table" id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Страницы</th>
+                        <th>Проекты</th>
+                        <th>Название</th>
+                        <th>Примечание</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Нет данных</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="btn-group" style="margin-top:1rem;">
+            <button class="btn btn-outline" onclick="window.location.href='https://lexlucisrosaealbae.ru'">🌹 Перейти на сайт Lex Lucis Rosae Albae</button>
+        </div>
+    </div>
+
+    <div class="footnote">
+        <strong>Lex Lucis Rosae Albae</strong> — Закон Света Белой Розы<br>
+        Автор: Чередник М.С. | Система АЭСО | 2026
+    </div>
+
+    <div id="toast" class="toast">✅ Сохранено</div>
+
+    <script>
+        // ===== КОНФИГУРАЦИЯ =====
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxYlZvTsPbI-8oqs-0cmuGlnmLGEX2KFh9kiHbMGxPQKnjHra-Q4pTgeUSoK_C3GRVQ/exec';
+
+        // ===== ЭЛЕМЕНТЫ =====
+        const inputDate = document.getElementById('inputDate');
+        const inputPages = document.getElementById('inputPages');
+        const inputProjects = document.getElementById('inputProjects');
+        const inputName = document.getElementById('inputName');
+        const inputNote = document.getElementById('inputNote');
+        const saveBtn = document.getElementById('saveBtn');
+        const historyBody = document.getElementById('historyBody');
+        const chartBars = document.getElementById('chartBars');
+
+        let dataStore = [];
+
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            toast.textContent = text;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function formatDate(d) {
+            if (!d) return '—';
+            const parts = d.split('-');
+            return parts[2] + '.' + parts[1] + '.' + parts[0];
+        }
+
+        function renderAll() {
+            renderStats();
+            renderHistory();
+            renderChart();
+        }
+
+        function renderStats() {
+            const totalPages = dataStore.reduce((sum, r) => sum + (r.pages || 0), 0);
+            const totalProjects = dataStore.reduce((sum, r) => sum + (r.projects || 0), 0);
+            document.getElementById('totalPages').textContent = totalPages;
+            document.getElementById('totalProjects').textContent = totalProjects;
+            document.getElementById('totalEntries').textContent = dataStore.length;
+            const last = dataStore.length ? dataStore[dataStore.length-1].date : null;
+            document.getElementById('lastUpdate').textContent = last ? formatDate(last) : '—';
+        }
+
+        function renderHistory() {
+            if (!dataStore.length) {
+                historyBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Нет данных</td></tr>';
+                return;
+            }
+            let html = '';
+            dataStore.slice().reverse().forEach(r => {
+                html += `<tr>
+                    <td>${formatDate(r.date)}</td>
+                    <td><strong>${r.pages}</strong></td>
+                    <td>${r.projects}</td>
+                    <td>${r.name || '—'}</td>
+                    <td>${r.note || '—'}</td>
+                </tr>`;
+            });
+            historyBody.innerHTML = html;
+        }
+
+        function renderChart() {
+            if (!dataStore.length) {
+                chartBars.innerHTML = `<div style="color:#94a3b8; text-align:center; width:100%; padding:1rem 0;">Нет данных для графика</div>`;
+                return;
+            }
+            const max = Math.max(...dataStore.map(r => r.pages || 0), 10);
+            let html = '';
+            dataStore.forEach(r => {
+                const height = Math.max(20, (r.pages / max) * 160);
+                html += `<div class="bar-item">
+                    <div class="bar" style="height:${height}px; background:#3b82f6;"></div>
+                    <div class="bar-label">${formatDate(r.date)}<br>${r.pages}</div>
+                </div>`;
+            });
+            chartBars.innerHTML = html;
+        }
+
+        // ===== СОХРАНЕНИЕ (отправка в Google Apps Script) =====
+        async function saveData() {
+            const date = inputDate.value;
+            const pages = parseInt(inputPages.value);
+            const projects = parseInt(inputProjects.value);
+            const name = inputName.value.trim();
+            const note = inputNote.value.trim();
+
+            if (!date || !pages || !projects) {
+                showToast('⚠️ Заполните дату, страницы и проекты');
+                return;
+            }
+
+            const payload = { date, pages, projects, name, note };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.result === 'success') {
+                    dataStore.push(payload);
+                    renderAll();
+                    showToast('✅ Сохранено в таблицу');
+                    inputDate.value = '';
+                    inputPages.value = '';
+                    inputProjects.value = '';
+                    inputName.value = '';
+                    inputNote.value = '';
+                } else {
+                    showToast('❌ Ошибка: ' + (result.error || 'неизвестная'));
+                }
+            } catch (error) {
+                showToast('❌ Ошибка отправки: ' + error.message);
+            }
+        }
+
+        // ===== СОБЫТИЯ =====
+        saveBtn.addEventListener('click', saveData);
+
+        // ===== СТАРТ =====
+        const today = new Date().toISOString().split('T')[0];
+        inputDate.value = today;
+
+        // Данные локально пусты — только через форму
+        renderAll();
+    </script>
+</body>
+</html>
