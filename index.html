@@ -1,6 +1,6 @@
 <script>
     var password = "Tava_PRS";
-    var input = prompt("Введите пароль для доступа к редактированию дашборда:");
+    var input = prompt("Введите пароль для доступа к редактированию:");
     var isAuthorized = (input === password);
 </script>
 <!DOCTYPE html>
@@ -183,16 +183,8 @@
             body { padding: 1rem; }
             .card { padding: 1rem; }
         }
-        /* Скрываем форму, если пользователь не авторизован */
-        .admin-only {
-            display: none;
-        }
-        .admin-only.show {
-            display: block;
-        }
-        .admin-only-flex.show {
-            display: flex;
-        }
+        .admin-only { display: none; }
+        .admin-only.show { display: block; }
         .login-msg {
             background: #fee2e2;
             color: #991b1b;
@@ -202,9 +194,7 @@
             border: 1px solid #fecaca;
             display: none;
         }
-        .login-msg.show {
-            display: block;
-        }
+        .login-msg.show { display: block; }
     </style>
 </head>
 <body>
@@ -216,7 +206,6 @@
     <h1 style="font-size:2rem; font-weight:600;">📊 Дашборд ПРС</h1>
     <p style="color:#475569; margin-bottom:2rem;">Авторская система профессионального развития студента (АЭСО)</p>
 
-    <!-- Статистика -->
     <div class="grid-4" id="stats">
         <div class="stat"><div class="number" id="totalPages">0</div><div class="label">Всего страниц</div></div>
         <div class="stat"><div class="number" id="totalProjects">0</div><div class="label">Всего проектов</div></div>
@@ -224,7 +213,6 @@
         <div class="stat"><div class="number" id="lastUpdate">—</div><div class="label">Последнее обновление</div></div>
     </div>
 
-    <!-- Форма + график -->
     <div class="grid-2">
         <div class="card admin-only" id="formCard">
             <h3 style="margin-bottom:1rem;">✏️ Добавить запись</h3>
@@ -264,7 +252,6 @@
         </div>
     </div>
 
-    <!-- История -->
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
             <h3>📋 История изменений</h3>
@@ -299,17 +286,14 @@
     <div id="toast" class="toast">✅ Сохранено</div>
 
     <script>
-        // Показываем форму только авторизованному пользователю
         if (typeof isAuthorized !== 'undefined' && isAuthorized) {
             document.getElementById('formCard').classList.add('show');
         } else {
             document.getElementById('loginMsg').classList.add('show');
         }
 
-        // ===== КОНФИГУРАЦИЯ =====
         const API_URL = 'https://script.google.com/macros/s/AKfycbxYlZvTsPbI-8oqs-0cmuGlnmLGEX2KFh9kiHbMGxPQKnjHra-Q4pTgeUSoK_C3GRVQ/exec';
 
-        // ===== ЭЛЕМЕНТЫ =====
         const inputDate = document.getElementById('inputDate');
         const inputPages = document.getElementById('inputPages');
         const inputProjects = document.getElementById('inputProjects');
@@ -386,9 +370,7 @@
             chartBars.innerHTML = html;
         }
 
-        // ===== СОХРАНЕНИЕ (отправка в Google Apps Script) =====
         async function saveData() {
-            // Проверка авторизации перед сохранением
             if (typeof isAuthorized === 'undefined' || !isAuthorized) {
                 showToast('⚠️ Только автор может вносить изменения');
                 return;
@@ -433,16 +415,12 @@
             }
         }
 
-        // ===== СОБЫТИЯ =====
         if (saveBtn) {
             saveBtn.addEventListener('click', saveData);
         }
 
-        // ===== СТАРТ =====
         const today = new Date().toISOString().split('T')[0];
         inputDate.value = today;
-
-        // Данные локально пусты — только через форму
         renderAll();
     </script>
 </body>
