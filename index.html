@@ -91,9 +91,7 @@
             flex: 1;
             min-width: 200px;
         }
-        .login-form .btn {
-            flex-shrink: 0;
-        }
+        .login-form .btn { flex-shrink: 0; }
         @media (max-width: 700px) {
             .grid-2 { grid-template-columns: 1fr; }
             body { padding: 1rem; }
@@ -115,7 +113,7 @@
         <div class="stat"><div class="number" id="lastUpdate">—</div><div class="label">Последнее обновление</div></div>
     </div>
 
-    <!-- Форма входа (для автора) -->
+    <!-- Форма входа -->
     <div class="card" id="loginCard">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
             <h3 style="margin-bottom:0.5rem;">🔑 Вход для редактирования</h3>
@@ -131,7 +129,7 @@
     <!-- Сообщение для гостей -->
     <div class="login-msg" id="loginMsg">🔒 Вы вошли как гость. Данные защищены от изменений.</div>
 
-    <!-- Форма добавления (скрыта по умолчанию) -->
+    <!-- Форма добавления -->
     <div class="grid-2">
         <div class="card admin-only" id="formCard">
             <h3 style="margin-bottom:1rem;">✏️ Добавить запись</h3>
@@ -218,7 +216,6 @@
         const loginMsg = document.getElementById('loginMsg');
         const formCard = document.getElementById('formCard');
 
-        // ===== ВХОД =====
         loginBtn.addEventListener('click', function() {
             const entered = passwordInput.value.trim();
             if (entered === CORRECT_PASSWORD) {
@@ -234,14 +231,11 @@
             }
         });
 
-        // Вход по Enter
         passwordInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                loginBtn.click();
-            }
+            if (e.key === 'Enter') loginBtn.click();
         });
 
-        // ===== ОСТАЛЬНОЙ СКРИПТ (без изменений) =====
+        // ===== ОСТАЛЬНОЙ СКРИПТ =====
         const API_URL = 'https://script.google.com/macros/s/AKfycbxYlZvTsPbI-8oqs-0cmuGlnmLGEX2KFh9kiHbMGxPQKnjHra-Q4pTgeUSoK_C3GRVQ/exec';
 
         const inputDate = document.getElementById('inputDate');
